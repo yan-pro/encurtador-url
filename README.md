@@ -43,4 +43,4 @@ O projeto é 100% containerizado. Você só precisa ter o **Docker** e o **Docke
 
 ### 1. Clone o repositório
 ```bash
-git clone [https://github.com/yan-pro/encurtador-url.git](https://github.com/yan-pro/encurtador-url.git)
+git clone https://github.com/yan-pro/encurtador-url.git

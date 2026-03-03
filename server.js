@@ -71,7 +71,7 @@ const clickQueue = new Queue('click-queue', { connection });
                 });
                 
                 return res.redirect(originalUrl);
-            } else {
+            } else { 
                 return res.status(404).json({ error: 'Not found' });
             }
         } catch (error) {

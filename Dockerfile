@@ -5,7 +5,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # --- A CORREÇÃO ESTÁ AQUI ---
-# Instala o OpenSSL que o Prisma precisa
+# Instala o OpenSSL que o P risma precisa
 RUN apk update && apk add --no-cache openssl
 
 # Copia os arquivos de dependências

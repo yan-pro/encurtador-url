@@ -32,7 +32,7 @@ const worker = new Worker('click-queue', async (job) => {
                     ip: ip,
                     userAgent: userAgent
                 }
-            });
+            }); 
             console.log(`[Worker] ✅ Analytics salvo para o link ID ${link.id}`);
         }
     } catch (err) {

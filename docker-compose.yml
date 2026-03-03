@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://admin:root@postgres:5432/shortener
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - cache
+      - postgres
+    # Comando padrão (já está no Dockerfile, mas reforçando):
+    command: node server.js
+
+  # --- NOVO SERVIÇO: WORKER ---
+  worker:
+    build: .  # Usa a mesma imagem da API
+    environment:
+      - DATABASE_URL=postgresql://admin:root@postgres:5432/shortener
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - cache
+      - postgres
+    # Aqui está o segredo: Sobresc revemos o comando para rodar o worker
+    command: node worker.js
+
+  cache:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=shortener
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -10,14 +10,12 @@ Um sistema distribuído de encurtamento de URLs focado em **alta performance, ba
 
 Mais do que um simples CRUD, este projeto foi desenhado para suportar picos de tráfego (como campanhas de marketing em massa) utilizando padrões avançados de arquitetura de software, como **Cache-Aside** e **Processamento Assíncrono Baseado em Eventos (Filas)**.
 
-
-
 ## ✨ Principais Funcionalidades
 
 - **Encurtamento Rápido:** Geração de identificadores únicos para URLs longas.
 - **Redirecionamento de Baixa Latência:** Uso de cache em memória para garantir respostas em poucos milissegundos.
 - **Analytics Assíncrono:** Coleta de dados de clique (IP, User-Agent, Data/Hora) sem impactar o tempo de redirecionamento do usuário final.
-- **Soberania de Dados:** Arquitetura *in-house* para empresas que não podem expor métricas de campanhas para serviços de terceiros (como Bitly).
+- **Soberania de Dados:** Arquitetura *in-house* para ter controle total sobre as métricas de tráfego.
 
 ## 🏗️ Arquitetura e Decisões Técnicas
 
@@ -37,10 +35,13 @@ Para resolver o gargalo clássico de bancos de dados relacionais sob alto tráfe
 - **ORM:** Prisma
 - **Infraestrutura:** Docker & Docker Compose
 
+---
+
 ## 🚀 Como Executar Localmente
 
-O projeto é 100% containerizado. Você só precisa ter o **Docker** e o **Docker Compose** instalados na sua máquina.
+O projeto é containerizado. Certifique-se de ter o **Node.js**, **Docker** e o **Docker Compose** instalados na sua máquina.
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/yan-pro/encurtador-url.git
+git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git)
+cd SEU_REPOSITORIO

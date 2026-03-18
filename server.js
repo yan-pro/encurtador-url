@@ -4,6 +4,8 @@ const { nanoid } = require('nanoid');
 const { PrismaClient } = require('@prisma/client');
 const { Queue } = require('bullmq'); // <--- Import novo
 const IORedis = require('ioredis');  // <--- Import novo
+const Joi = require('joi');
+const checkingReqBodyMiddleware = require('./middleware');
 
 const app = express();
 app.use(express.json());
@@ -28,12 +30,24 @@ const clickQueue = new Queue('click-queue', { connection });
     await redisCache.connect();
     console.log('🔌 Redis Cache Conectado');
 
-    app.post('/shorten', async (req, res) => {
-        const { originalUrl } = req.body;
+    app.post('/shorten', checkingReqBodyMiddleware, async (req, res) => {
+        const { originalUrl, alias } = req.body;
+        
         if (!originalUrl) return res.status(400).json({ error: 'URL required' });
-        const shortCode = nanoid(6);
+        const shortCode = alias ? alias : nanoid(6);
 
         try {
+            const allLinks = await prisma.link.findMany()
+            const allAnalytics = await prisma.analytics.findMany()
+            for(let i = 0; i < allLinks.length; i++){
+                if(shortCode === allLinks[i].shortCode){
+                    return res.status(500).json({error: 'Esse alias já existe, tente outro!'})
+                }
+            }
+       //     for(let j = 0; j < allAnalytics.length; j++){
+              //  if(){}
+            //}
+            console.log(allAnalytics)
             const newLink = await prisma.link.create({
                 data: { original: originalUrl, shortCode }
             });

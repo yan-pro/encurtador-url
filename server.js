@@ -58,6 +58,8 @@ const clickQueue = new Queue('click-queue', { connection });
         }
     });
 
+    app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
     app.get('/:code', async (req, res) => {
         const { code } = req.params;
 
@@ -93,8 +95,6 @@ const clickQueue = new Queue('click-queue', { connection });
             res.status(500).json({ error: 'Internal error' });
         }
     });
-
-    app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
     app.listen(3000, () => {
         console.log('🚀 Server running on port 3000');

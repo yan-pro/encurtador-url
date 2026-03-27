@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api:
+    image: ${ECR_REGISTRY}/url-shortener:${IMAGE_TAG}
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://cache:6379
+      - PORT=3000
+    depends_on:
+      - cache
+    command: node server.js
+    restart: unless-stopped
+
+  worker:
+    image: ${ECR_REGISTRY}/url-shortener:${IMAGE_TAG}
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://cache:6379
+    depends_on:
+      - cache
+    command: node worker.js
+    restart: unless-stopped
+
+  cache:
+    image: redis:alpine
+    restart: unless-stopped
+
+# No postgres service — RDS handles that

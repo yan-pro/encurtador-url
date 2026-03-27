@@ -1,0 +1,60 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/url-shortener:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/url-shortener:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/url-shortener:$IMAGE_TAG $ECR_REGISTRY/url-shortener:latest
+          docker push $ECR_REGISTRY/url-shortener:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            export ECR_REGISTRY="${{ secrets.ECR_REGISTRY }}"
+            export IMAGE_TAG="${{ github.sha }}"
+            export AWS_REGION="${{ secrets.AWS_REGION }}"
+
+            # Authenticate Docker to ECR using instance profile
+            aws ecr get-login-password --region $AWS_REGION | \
+              docker login --username AWS --password-stdin $ECR_REGISTRY
+
+            # Pull latest image and redeploy
+            cd /home/ec2-user/app
+            ECR_REGISTRY=$ECR_REGISTRY IMAGE_TAG=$IMAGE_TAG \
+              docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d --pull always
+
+            # Remove old images to save disk space
+            docker image prune -f
